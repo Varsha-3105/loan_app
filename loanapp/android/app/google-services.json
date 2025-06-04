@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "183514483408",
+    "project_id": "fireloan-105fd",
+    "storage_bucket": "fireloan-105fd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:183514483408:android:d6da4e1d5fc2ffbe366cd5",
+        "android_client_info": {
+          "package_name": "com.example.loanapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3JeuPag0C7NKU3sLykWSouOrX_T-kMks"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

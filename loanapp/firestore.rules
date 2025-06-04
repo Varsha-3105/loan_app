@@ -1,0 +1,58 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Helper function to check if user is accessing their own document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Users collection rules
+    match /users/{userId} {
+      // Allow users to read and write their own documents
+      allow read, write: if isOwner(userId);
+      
+      // Allow admins to read all user documents
+      allow read: if isAdmin();
+      
+      // Allow admins to update loan status and tracking steps
+      allow update: if isAdmin() && (
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['loanStatus', 'statusUpdatedAt', 'trackingSteps']) ||
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['loanStatus', 'approvedAt', 'rejectedAt', 'trackingSteps'])
+      );
+      
+      // Allow users to read their own data
+      allow read: if request.auth.uid == userId;
+      
+      // Allow users to write their own data
+      allow write: if request.auth.uid == userId;
+      
+      // Loan documents subcollection rules
+      match /loan_documents/{documentId} {
+        // Allow admins to read all loan documents
+        allow read: if isAdmin();
+        // Allow users to read their own loan documents
+        allow read: if request.auth.uid == userId;
+        // Allow users to create their own loan documents
+        allow create: if request.auth.uid == userId;
+        // Allow users to update their own loan documents
+        allow update: if request.auth.uid == userId;
+        // Prevent deletion of loan documents
+        allow delete: if false;
+      }
+    }
+  }
+} 
